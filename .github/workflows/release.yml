@@ -22,7 +22,7 @@ jobs:
         run: pwd && ls -la
 
       - name: Setup
-        run: poetry install --no-root
+        run: poetry config virtualenvs.create false && poetry install --no-root
 
       - name: Run pre-commit
         run: pre-commit run --show-diff-on-failure --all-files
@@ -42,6 +42,9 @@ jobs:
 
       - name: Install dependencies
         run: pip install wheel poetry
+
+      - name: Setup
+        run: poetry config virtualenvs.create false && poetry install --no-root
 
       - name: Build package
         run: poetry build -f wheel
