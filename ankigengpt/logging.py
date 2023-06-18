@@ -2,7 +2,6 @@ import logging
 import logging.handlers
 from sys import stderr
 
-
 logger = logging.getLogger('ankigengpt')
 
 logger.setLevel('DEBUG')

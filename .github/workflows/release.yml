@@ -1,0 +1,99 @@
+---
+on:
+  push:
+    branches:
+      - "*"
+    tags:
+      - "v*.*.*"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Debug
+        run: pwd && ls -la
+
+      - name: Setup
+        run: make setup
+
+      - name: Run pre-commit
+        run: pre-commit run --show-diff-on-failure --all-files
+        env:
+          SKIP: "no-commit-to-branch"
+
+  pypi:
+    runs-on: ubuntu-latest
+    needs:
+      - test
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install wheel poetry
+
+      - name: Build package
+        run: poetry build -f wheel
+
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+  container:
+    runs-on: ubuntu-latest
+    needs:
+      - test
+    if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags') || github.ref == 'main')
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4.0.1
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            rwxd/ankigengpt
+            ghcr.io/rwxd/ankigengpt
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+
+      - name: Log in to Docker Hub
+        if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags') || github.ref == 'main')
+        uses: docker/login-action@d398f07826957cd0a18ea1b059cf1207835e60bc
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GHCR
+        if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags') || github.ref == 'main')
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push master Docker image
+        uses: docker/build-push-action@v3.0.0
+        with:
+          context: .
+          push: ${{ github.event_name == 'push' && (startsWith(github.ref, 'refs/tags') || github.ref == 'main') }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

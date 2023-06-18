@@ -1,0 +1,4 @@
+repository:
+  name: "wallabag2readwise"
+  description: "Export / synchronize wallabag annotations to readwise highlights"
+  topics: "wallabag, readwise, sync, export"

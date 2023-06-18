@@ -1,6 +1,8 @@
-from pathlib import Path
-from bs4 import BeautifulSoup
 from dataclasses import dataclass
+from pathlib import Path
+
+from bs4 import BeautifulSoup
+
 from ankigengpt.misc import sanitize_string
 
 
@@ -12,7 +14,7 @@ class KindleHighlights:
 
 
 def extract_kindle_highlights(path: Path) -> KindleHighlights:
-    with open(path, 'r') as f:
+    with open(path) as f:
         content = f.read()
         soup = BeautifulSoup(content, 'html.parser')
     title = sanitize_string(soup.find('div', class_='bookTitle').text.strip())
