@@ -7,7 +7,7 @@ from ankigengpt.epub import parse_ebook
 from ankigengpt.gpt import _generate_cards_until_finish, calculate_tokens_of_text
 from ankigengpt.kindle import extract_kindle_highlights
 from ankigengpt.logging import init_logger, logger
-from ankigengpt.templates import template_epub, template_kindle
+from ankigengpt.templates import template_epub, template_kindle, template_plain
 
 app = typer.Typer()
 
@@ -33,10 +33,27 @@ def kindle_highlights(
 
 
 @app.command()
+def plain(
+    openai_token: str = typer.Option(..., envvar='OPENAI_TOKEN'),
+    debug: bool = typer.Option(False),
+    path: Path = typer.Option(..., help='Path to text file'),
+    dest: Path = typer.Option(Path().cwd, help='Destination directory'),
+):
+    init_logger(debug)
+    with open(path, 'r') as f:
+        content = f.readlines()
+    cards = _generate_cards_until_finish(
+        template_plain, content, openai_token, cards_source=path.name
+    )
+    ankiInput = DeckInput(path.name, cards)
+    generate_deck(ankiInput, dest)
+
+
+@app.command()
 def epub(
     openai_token: str = typer.Option(..., envvar='OPENAI_TOKEN'),
     debug: bool = typer.Option(False),
-    path: Path = typer.Option(..., help='Path to APA highlight notebook'),
+    path: Path = typer.Option(..., help='Path to epub file'),
     dest: Path = typer.Option(Path().cwd, help='Destination directory'),
 ):
     init_logger(debug)
@@ -45,8 +62,6 @@ def epub(
     logger.info(f'{len(" ".join(book.content))} chars')
     tokens = calculate_tokens_of_text(' '.join(book.content))
     logger.info(f'Book has {tokens} tokens')
-    for i in book.content:
-        print(i)
 
     cards = _generate_cards_until_finish(
         template_epub,
@@ -55,5 +70,5 @@ def epub(
         cards_source=book.title,
         template_input={'title': book.title},
     )
-    input = DeckInput(book.title, cards)
-    generate_deck(input, dest)
+    ankiInput = DeckInput(book.title, cards)
+    generate_deck(ankiInput, dest)

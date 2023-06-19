@@ -9,3 +9,4 @@ TEMPLATE_ENVIRONMENT = Environment(
 
 template_kindle: Template = TEMPLATE_ENVIRONMENT.get_template('kindle.j2')
 template_epub: Template = TEMPLATE_ENVIRONMENT.get_template('epub.j2')
+template_plain: Template = TEMPLATE_ENVIRONMENT.get_template('plain.j2')

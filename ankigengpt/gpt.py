@@ -92,7 +92,7 @@ def _generate_cards_until_finish(
                         cards.extend(gpt_answer_to_cards(gpt_answer, cards_source))
                     except Exception as e:
                         logger.error(e)
-                        print(gpt_answer)
+                        logger.error(gpt_answer)
                 except Exception as e:
                     logger.error(e)
 
