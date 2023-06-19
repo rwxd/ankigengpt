@@ -35,3 +35,11 @@ Uses the highlights to create anki cards.
 ```bash
 ankigengpt kindle-highlights --path ~/Downloads/Notebook.html
 ```
+
+## Plain text
+
+Use a plain text file like markdown or txt
+
+```bash
+ankigengpt plain --debug --path ~/Downloads/book.md
+```
