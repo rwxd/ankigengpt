@@ -40,7 +40,7 @@ def plain(
     dest: Path = typer.Option(Path().cwd, help='Destination directory'),
 ):
     init_logger(debug)
-    with open(path, 'r') as f:
+    with open(path) as f:
         content = f.readlines()
     cards = _generate_cards_until_finish(
         template_plain, content, openai_token, cards_source=path.name
