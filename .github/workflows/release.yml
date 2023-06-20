@@ -6,9 +6,6 @@ on:
     tags:
       - "v*.*.*"
 
-permissions:
-  id-token: write
-
 jobs:
   test:
     runs-on: ubuntu-latest
