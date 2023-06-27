@@ -19,9 +19,19 @@ class DeckInput:
     cards: list[AnkiCard]
 
 
-def gpt_answer_to_cards(answer: str, source: str) -> list[AnkiCard]:
+def split_gpt_answer(answer: str) -> list[str]:
+    '''Splits list into dicts'''
+    splitted = []
+    for pair in answer.split('\n-'):
+        splitted.append(
+            '\n'.join([i.replace('-', '').strip() for i in pair.split('\n')])
+        )
+    return splitted
+
+
+def gpt_answer_to_cards(answer: str, source: str) -> AnkiCard:
     data = yaml.safe_load(answer)
-    return [AnkiCard(i['question'], i['answer'], source) for i in data]
+    return AnkiCard(data['question'], data['answer'], source)
 
 
 def generate_deck(input: DeckInput, dest: Path) -> None:
@@ -31,7 +41,7 @@ def generate_deck(input: DeckInput, dest: Path) -> None:
 
     for card in input.cards:
         my_note = genanki.Note(
-            model=anki_model, fields=[card.front, card.back, card.source]
+            model=anki_model, fields=[card.front, card.back, 'Source: ' + card.source]
         )
         my_deck.add_note(my_note)
 
@@ -51,8 +61,20 @@ anki_model = genanki.Model(
     templates=[
         {
             'name': 'Card 1',
-            'qfmt': '{{Front}}',
-            'afmt': '{{Front}}<br>{{Back}}<br>{{Source}}',
+            'qfmt': '<div class="front-back">{{Front}}</div>',
+            'afmt': '<div class="front-back">{{Front}}</div><br><div class="front-back">{{Back}}</div><br><div class="source">{{Source}}</div>',  # noqa
         },
     ],
+    css='''
+        .source {
+            font-size: 0.5em;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .front-back {
+            font-size: 1.3em;
+            margin-top: 20px;
+            text-align: center;
+        }
+    ''',
 )

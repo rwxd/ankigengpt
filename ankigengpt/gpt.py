@@ -1,12 +1,17 @@
 import openai
 import tiktoken
 from jinja2 import Template
+from ratelimit import limits, sleep_and_retry
 from rich.progress import Progress
 
-from ankigengpt.anki import AnkiCard, gpt_answer_to_cards
+from ankigengpt.anki import AnkiCard, gpt_answer_to_cards, split_gpt_answer
 from ankigengpt.logging import logger
 
+ONE_MINUTE = 60
 
+
+@sleep_and_retry
+@limits(3, period=ONE_MINUTE)
 def prompt_openai(
     token: str,
     prompt: str,
@@ -70,13 +75,13 @@ def _generate_cards_until_finish(
     number_of_inputs = len(inputs)
     cards = []
     with Progress() as progress:
-        task = progress.add_task('Promting GPT...', total=number_of_inputs)
+        task = progress.add_task('Prompting GPT...', total=number_of_inputs)
         for index, item in enumerate(inputs):
             item = f'{item}\n'
             input_tokens = calculate_tokens_of_text(item)
 
             # Add some space for the gpt answer
-            needed_tokens = int(input_tokens + (input_tokens / 4))
+            needed_tokens = int(input_tokens + (input_tokens / 2))
 
             # Check if adding more tokens will exceed the limit or it is the last item
             if (used_tokens + needed_tokens >= token_limit) or (
@@ -87,12 +92,13 @@ def _generate_cards_until_finish(
                 # Get response from GPT
                 try:
                     gpt_answer = prompt_openai(openai_token, prompt)
-
-                    try:
-                        cards.extend(gpt_answer_to_cards(gpt_answer, cards_source))
-                    except Exception as e:
-                        logger.error(e)
-                        logger.error(gpt_answer)
+                    splitted_answer = split_gpt_answer(str(gpt_answer))
+                    for item in splitted_answer:
+                        try:
+                            cards.append(gpt_answer_to_cards(item, cards_source))
+                        except Exception as e:
+                            logger.error(item)
+                            logger.error(e)
                 except Exception as e:
                     logger.error(e)
 

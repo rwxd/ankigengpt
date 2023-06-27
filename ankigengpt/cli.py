@@ -41,10 +41,13 @@ def plain(
 ):
     init_logger(debug)
     with open(path) as f:
-        content = f.readlines()
-    cards = _generate_cards_until_finish(
-        template_plain, content, openai_token, cards_source=path.name
-    )
+        raw = f.read()
+        # remove markdown double new line
+        raw = raw.replace('\n\n', '\n')
+        content = raw.split('\n')
+        cards = _generate_cards_until_finish(
+            template_plain, content, openai_token, cards_source=path.name
+        )
     ankiInput = DeckInput(path.name, cards)
     generate_deck(ankiInput, dest)
 
