@@ -42,7 +42,7 @@ def prompt_openai(
     )
     content = client.choices[0].message.content
     logger.info(f'GPT answered with with {len(content.split(" "))} words')
-    logger.info(client.usage)
+    logger.debug(client.usage)
     return content
 
 
