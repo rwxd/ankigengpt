@@ -43,8 +43,8 @@ jobs:
       - name: Install dependencies
         run: pip install wheel poetry
 
-      - name: Setup
-        run: poetry config virtualenvs.create false && poetry install --no-root
+      - name: Setup poetry
+        run: poetry config virtualenvs.create false && poetry install --no-root && poetry self add poetry-version-plugin
 
       - name: Build package
         run: poetry build -f wheel
