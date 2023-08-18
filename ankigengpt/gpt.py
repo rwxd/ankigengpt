@@ -1,29 +1,28 @@
 import openai
 import tiktoken
 from jinja2 import Template
-from ratelimit import limits, sleep_and_retry
 from rich.progress import Progress
 
 from ankigengpt.anki import AnkiCard, gpt_answer_to_cards, split_gpt_answer
 from ankigengpt.logging import logger
+from ankigengpt.models import GPTModel, gpt_3_5_turbo
 
 ONE_MINUTE = 60
 
 
-@sleep_and_retry
-@limits(3, period=ONE_MINUTE)
+# @sleep_and_retry
+# @limits(10, period=ONE_MINUTE)
 def prompt_openai(
     token: str,
     prompt: str,
     temperature=1.0,
     frequency_penalty=0.0,
     presence_penalty=1.0,
-    # model='gpt-3.5-turbo',
-    model='gpt-3.5-turbo-0613',
+    model: GPTModel = gpt_3_5_turbo,
 ) -> str:
     openai.api_key = token
     client = openai.ChatCompletion.create(
-        model=model,
+        model=model.name,
         messages=[
             {'role': 'user', 'content': prompt},
         ],
@@ -57,7 +56,7 @@ def _generate_cards_until_finish(
     inputs: list[str],
     openai_token: str,
     cards_source: str,
-    token_limit=4000,
+    model: GPTModel = gpt_3_5_turbo,
     template_input: dict = dict(),
 ) -> list[AnkiCard]:
     '''
@@ -68,6 +67,10 @@ def _generate_cards_until_finish(
 
     tokens_intro = calculate_tokens_of_text(intro)
     logger.info(f'Prompt introduction tokens: {tokens_intro}')
+
+    tokens_all = sum([calculate_tokens_of_text(item) for item in inputs])
+    cost_tokens_all = model.calculate_price(tokens_all)
+    logger.info(f'Estimated cost: {cost_tokens_all}$')
 
     used_tokens = tokens_intro
     prompt = intro
@@ -81,24 +84,28 @@ def _generate_cards_until_finish(
             input_tokens = calculate_tokens_of_text(item)
 
             # Add some space for the gpt answer
-            needed_tokens = int(input_tokens + (input_tokens / 2))
+            needed_tokens = int(input_tokens + (input_tokens / 6))
 
             # Check if adding more tokens will exceed the limit or it is the last item
-            if (used_tokens + needed_tokens >= token_limit) or (
+            if (used_tokens + needed_tokens >= model.max_tokens) or (
                 index + 1 == number_of_inputs
             ):
-                logger.info(f'Token limit of {token_limit} reached for current prompt')
+                logger.info(
+                    f'Token limit of {model.max_tokens} reached for current prompt'
+                )
 
                 # Get response from GPT
                 try:
-                    gpt_answer = prompt_openai(openai_token, prompt)
+                    gpt_answer = prompt_openai(openai_token, prompt, model=model)
                     splitted_answer = split_gpt_answer(str(gpt_answer))
+                    logger.info(f'Splitted answer into {len(splitted_answer)} parts')
                     for item in splitted_answer:
                         try:
                             cards.append(gpt_answer_to_cards(item, cards_source))
                         except Exception as e:
-                            logger.error(item)
-                            logger.error(e)
+                            logger.error(f'Error: {e} for item: {item}')
+                            logger.debug(gpt_answer)
+                            logger.debug(splitted_answer)
                 except Exception as e:
                     logger.error(e)
 
@@ -111,5 +118,13 @@ def _generate_cards_until_finish(
 
             progress.update(task, advance=1)
 
-    logger.debug(f'{len(cards)} cards generated')
+    logger.info(f'{len(cards)} cards generated')
     return cards
+
+
+def get_available_models(token: str) -> list[str]:
+    models = openai.Model.list(api_key=token)
+    print(models)
+    if models:
+        return [model['id'] for model in models['data']]
+    return []
