@@ -25,13 +25,13 @@ class EnumGPTModel(Enum):
 
 
 def get_gpt_model(name: EnumGPTModel) -> GPTModel:
-    match name.value:
-        case 'gpt-3.5-turbo':
+    match name:
+        case EnumGPTModel.gpt_3_5_turbo:
             return gpt_3_5_turbo
-        case 'gpt-3.5-turbo-16k':
+        case EnumGPTModel.gpt_3_5_turbo_16k:
             return gpt_3_5_turbo_16k
-        case 'gpt-4':
+        case EnumGPTModel.gpt_4:
             return gpt_4
-        case 'gpt-4-32k':
+        case EnumGPTModel.gpt_4_32k:
             return gpt_4_32k
     raise ValueError(f'Unknown model {name}')
