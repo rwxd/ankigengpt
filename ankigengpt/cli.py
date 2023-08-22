@@ -28,7 +28,9 @@ def kindle_highlights(
     debug: bool = typer.Option(False),
     path: Path = typer.Option(..., help='Path to APA highlight notebook'),
     dest: Path = typer.Option(Path().cwd, help='Destination directory'),
-    model: EnumGPTModel = typer.Option(EnumGPTModel.gpt_3_5_turbo, help='GPT model'),
+    model: EnumGPTModel = typer.Option(
+        EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
+    ),
 ):
     init_logger(debug)
     resolved_model = get_gpt_model(model)
@@ -51,7 +53,9 @@ def plain(
     debug: bool = typer.Option(False),
     path: Path = typer.Option(..., help='Path to text file'),
     dest: Path = typer.Option(Path().cwd, help='Destination directory'),
-    model: EnumGPTModel = typer.Option(EnumGPTModel.gpt_3_5_turbo, help='GPT model'),
+    model: EnumGPTModel = typer.Option(
+        EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
+    ),
 ):
     init_logger(debug)
     resolved_model = get_gpt_model(model)
@@ -77,7 +81,9 @@ def epub(
     debug: bool = typer.Option(False),
     path: Path = typer.Option(..., help='Path to epub file'),
     dest: Path = typer.Option(Path().cwd, help='Destination directory'),
-    model: EnumGPTModel = typer.Option(EnumGPTModel.gpt_3_5_turbo, help='GPT model'),
+    model: EnumGPTModel = typer.Option(
+        EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
+    ),
 ):
     init_logger(debug)
     resolved_model = get_gpt_model(model)
