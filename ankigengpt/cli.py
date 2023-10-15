@@ -31,6 +31,7 @@ def kindle_highlights(
     model: EnumGPTModel = typer.Option(
         EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
     ),
+    include_source: bool = typer.Option(False, help='Include source of highlight'),
 ):
     init_logger(debug)
     resolved_model = get_gpt_model(model)
@@ -44,7 +45,7 @@ def kindle_highlights(
         model=resolved_model,
     )
     input = DeckInput(highlights.title, cards)
-    generate_deck(input, dest)
+    generate_deck(input, dest, include_source)
 
 
 @app.command()
@@ -56,6 +57,7 @@ def plain(
     model: EnumGPTModel = typer.Option(
         EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
     ),
+    include_source: bool = typer.Option(False, help='Include source of highlight'),
 ):
     init_logger(debug)
     resolved_model = get_gpt_model(model)
@@ -72,7 +74,7 @@ def plain(
             model=resolved_model,
         )
     ankiInput = DeckInput(path.name, cards)
-    generate_deck(ankiInput, dest)
+    generate_deck(ankiInput, dest, include_source)
 
 
 @app.command()
@@ -84,6 +86,7 @@ def epub(
     model: EnumGPTModel = typer.Option(
         EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
     ),
+    include_source: bool = typer.Option(False, help='Include source of highlight'),
 ):
     init_logger(debug)
     resolved_model = get_gpt_model(model)
@@ -102,7 +105,7 @@ def epub(
         model=resolved_model,
     )
     ankiInput = DeckInput(book.title, cards)
-    generate_deck(ankiInput, dest)
+    generate_deck(ankiInput, dest, include_source)
 
 
 @app.command()

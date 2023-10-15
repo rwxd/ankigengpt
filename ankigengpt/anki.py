@@ -34,15 +34,17 @@ def gpt_answer_to_cards(answer: str, source: str) -> AnkiCard:
     return AnkiCard(data['question'], data['answer'], source)
 
 
-def generate_deck(input: DeckInput, dest: Path) -> None:
+def generate_deck(input: DeckInput, dest: Path, source: bool = False) -> None:
     my_deck = genanki.Deck(
         deck_id=random.randrange(11111111, 99999999, 8), name=input.name
     )
 
     for card in input.cards:
-        my_note = genanki.Note(
-            model=anki_model, fields=[card.front, card.back, 'Source: ' + card.source]
-        )
+        fields = [card.front, card.back]
+        if source:
+            fields.append('Source: ' + card.source)
+        model = get_anki_model(source)
+        my_note = genanki.Note(model=model, fields=fields)
         my_deck.add_note(my_note)
 
     package = genanki.Package(my_deck)
@@ -50,31 +52,44 @@ def generate_deck(input: DeckInput, dest: Path) -> None:
     package.write_to_file(dest.joinpath(input.name + '.apkg'))
 
 
-anki_model = genanki.Model(
-    model_id=9876543210,  # Unique ID for the model
-    name='Basic Model',
-    fields=[
+def get_anki_model(source: bool = False) -> genanki.Model:
+    fields = [
         {'name': 'Front'},
         {'name': 'Back'},
-        {'name': 'Source'},
-    ],
-    templates=[
+    ]
+    if source:
+        fields.append({'name': 'Source'})
+
+    templates = [
         {
             'name': 'Card 1',
             'qfmt': '<div class="front-back">{{Front}}</div>',
-            'afmt': '<div class="front-back">{{Front}}</div><br><div class="front-back">{{Back}}</div><br><div class="source">{{Source}}</div>',  # noqa
         },
-    ],
-    css='''
-        .source {
-            font-size: 0.5em;
-            margin-top: 20px;
-            text-align: center;
-        }
-        .front-back {
-            font-size: 1.3em;
-            margin-top: 20px;
-            text-align: center;
-        }
-    ''',
-)
+    ]
+
+    if source:
+        templates[0]['afmt'] = (
+            '<div class="front-back">{{Front}}</div><br>'
+            + '<div class="front-back">{{Back}}</div><br>'
+            + '<div class="source">{{Source}}</div>'
+        )
+
+    css = '''
+    .source {
+        font-size: 0.5em;
+        margin-top: 20px;
+        text-align: center;
+    }
+    .front-back {
+        font-size: 1.3em;
+        margin-top: 20px;
+        text-align: center;
+    }
+    '''
+    return genanki.Model(
+        model_id=9876543210,  # Unique ID for the model
+        name='AnkiGenGPT Basic Model',
+        fields=fields,
+        templates=templates,
+        css=css,
+    )
