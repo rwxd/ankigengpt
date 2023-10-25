@@ -36,6 +36,23 @@ Uses the highlights to create anki cards.
 ankigengpt kindle-highlights --path ~/Downloads/Notebook.html
 ```
 
+## Kobo Highlights
+
+You can activate the exporting of highlights on a kobo device by connecting it with USB and editing the file `.kobo/Kobo/Kobo eReader.conf` and adding this under `[FeatureSettings]`
+
+```ini
+[FeatureSettings]
+ExportHighlights=true
+```
+
+After that on the kobo device it is possible to export highlights from a book.
+
+Then you can get the files via USB and use the `kobo-highlights` command to create anki cards.
+
+```bash
+ankigengpt kobo-highlights --path ~/Downloads/BookHighlights.csv
+```
+
 ## Plain text
 
 Use a plain text file like markdown or txt

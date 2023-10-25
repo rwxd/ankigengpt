@@ -7,6 +7,7 @@ from ankigengpt.anki import DeckInput, generate_deck
 from ankigengpt.epub import parse_ebook
 from ankigengpt.gpt import _generate_cards_until_finish, calculate_tokens_of_text
 from ankigengpt.kindle import extract_kindle_highlights
+from ankigengpt.kobo import extract_kobo_highlights
 from ankigengpt.logging import init_logger, logger
 from ankigengpt.models import (
     EnumGPTModel,
@@ -106,6 +107,32 @@ def epub(
     )
     ankiInput = DeckInput(book.title, cards)
     generate_deck(ankiInput, dest, include_source)
+
+
+@app.command()
+def kobo_highlights(
+    openai_token: str = typer.Option(..., envvar='OPENAI_TOKEN'),
+    debug: bool = typer.Option(False),
+    path: Path = typer.Option(..., help='Path to epub file'),
+    dest: Path = typer.Option(Path().cwd, help='Destination directory'),
+    model: EnumGPTModel = typer.Option(
+        EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
+    ),
+    include_source: bool = typer.Option(False, help='Include source of highlight'),
+):
+    init_logger(debug)
+    resolved_model = get_gpt_model(model)
+    highlights = extract_kobo_highlights(path)
+    logger.info(f'Found {len(highlights.highlights)} highlights for {highlights.title}')
+    cards = _generate_cards_until_finish(
+        template_kindle,
+        highlights.highlights,
+        openai_token,
+        cards_source=highlights.title,
+        model=resolved_model,
+    )
+    input = DeckInput(highlights.title, cards)
+    generate_deck(input, dest, include_source)
 
 
 @app.command()
