@@ -64,15 +64,12 @@ def get_anki_model(source: bool = False) -> genanki.Model:
         {
             'name': 'Card 1',
             'qfmt': '<div class="front-back">{{Front}}</div>',
+            'afmt': '<div class="front-back">{{Front}}</div><br><div class="front-back">{{Back}}</div>',  # noqa
         },
     ]
 
     if source:
-        templates[0]['afmt'] = (
-            '<div class="front-back">{{Front}}</div><br>'
-            + '<div class="front-back">{{Back}}</div><br>'
-            + '<div class="source">{{Source}}</div>'
-        )
+        templates[0]['afmt'] += '<br><div class="source">{{Source}}</div>'
 
     css = '''
     .source {
