@@ -18,7 +18,7 @@ genanki = "^0.13.0"
 tiktoken = "^0.4.0"
 ebooklib = "^0.18"
 rich = "^13.4.2"
-pdfplumber = "^0.9.0"
+pdfplumber = ">=0.9,<0.11"
 ratelimit = "^2.2.1"
 
 
