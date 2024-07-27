@@ -16,6 +16,7 @@ from ankigengpt.models import (
     gpt_3_5_turbo_16k,
     gpt_4,
     gpt_4_32k,
+    gpt_4o,
 )
 from ankigengpt.templates import template_epub, template_kindle, template_plain
 
@@ -29,9 +30,7 @@ def kindle_highlights(
     debug: bool = typer.Option(False),
     path: Path = typer.Option(..., help='Path to APA highlight notebook'),
     dest: Path = typer.Option(Path().cwd, help='Destination directory'),
-    model: EnumGPTModel = typer.Option(
-        EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
-    ),
+    model: EnumGPTModel = typer.Option(EnumGPTModel.gpt_4_o.value, help='GPT model'),
     include_source: bool = typer.Option(False, help='Include source of highlight'),
 ):
     init_logger(debug)
@@ -55,9 +54,7 @@ def plain(
     debug: bool = typer.Option(False),
     path: Path = typer.Option(..., help='Path to text file'),
     dest: Path = typer.Option(Path().cwd, help='Destination directory'),
-    model: EnumGPTModel = typer.Option(
-        EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
-    ),
+    model: EnumGPTModel = typer.Option(EnumGPTModel.gpt_4_o.value, help='GPT model'),
     include_source: bool = typer.Option(False, help='Include source of highlight'),
 ):
     init_logger(debug)
@@ -84,9 +81,7 @@ def epub(
     debug: bool = typer.Option(False),
     path: Path = typer.Option(..., help='Path to epub file'),
     dest: Path = typer.Option(Path().cwd, help='Destination directory'),
-    model: EnumGPTModel = typer.Option(
-        EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
-    ),
+    model: EnumGPTModel = typer.Option(EnumGPTModel.gpt_4_o.value, help='GPT model'),
     include_source: bool = typer.Option(False, help='Include source of highlight'),
 ):
     init_logger(debug)
@@ -115,9 +110,7 @@ def kobo_highlights(
     debug: bool = typer.Option(False),
     path: Path = typer.Option(..., help='Path to epub file'),
     dest: Path = typer.Option(Path().cwd, help='Destination directory'),
-    model: EnumGPTModel = typer.Option(
-        EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
-    ),
+    model: EnumGPTModel = typer.Option(EnumGPTModel.gpt_4_o.value, help='GPT model'),
     include_source: bool = typer.Option(False, help='Include source of highlight'),
 ):
     init_logger(debug)
@@ -137,7 +130,7 @@ def kobo_highlights(
 
 @app.command()
 def list_models():
-    for model in [gpt_3_5_turbo, gpt_3_5_turbo_16k, gpt_4, gpt_4_32k]:
+    for model in [gpt_3_5_turbo, gpt_3_5_turbo_16k, gpt_4, gpt_4_32k, gpt_4o]:
         console.print(
             f'{model.name} - Max tokens: {model.max_tokens} - Price per token'
             + f' {model.price_per_token}'

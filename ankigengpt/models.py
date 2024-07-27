@@ -15,6 +15,7 @@ gpt_3_5_turbo = GPTModel('gpt-3.5-turbo', 4000, 0.0015)
 gpt_3_5_turbo_16k = GPTModel('gpt-3.5-turbo-16k', 16000, 0.003)
 gpt_4 = GPTModel('gpt-4', 8000, 0.03)
 gpt_4_32k = GPTModel('gpt-4-32k', 32000, 0.06)
+gpt_4o = GPTModel('gpt-4o', 10000, 0.005)
 
 
 class EnumGPTModel(Enum):
@@ -22,6 +23,7 @@ class EnumGPTModel(Enum):
     gpt_3_5_turbo_16k = 'gpt-3.5-turbo-16k'
     gpt_4 = 'gpt-4'
     gpt_4_32k = 'gpt-4-32k'
+    gpt_4_o = 'gpt-4o'
 
 
 def get_gpt_model(name: EnumGPTModel) -> GPTModel:
@@ -34,4 +36,6 @@ def get_gpt_model(name: EnumGPTModel) -> GPTModel:
             return gpt_4
         case EnumGPTModel.gpt_4_32k:
             return gpt_4_32k
+        case EnumGPTModel.gpt_4_o:
+            return gpt_4o
     raise ValueError(f'Unknown model {name}')

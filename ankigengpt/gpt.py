@@ -5,7 +5,7 @@ from rich.progress import Progress
 
 from ankigengpt.anki import AnkiCard, gpt_answer_to_cards, split_gpt_answer
 from ankigengpt.logging import logger
-from ankigengpt.models import GPTModel, gpt_3_5_turbo
+from ankigengpt.models import GPTModel, gpt_4o
 
 ONE_MINUTE = 60
 
@@ -18,7 +18,7 @@ def prompt_openai(
     temperature=1.0,
     frequency_penalty=0.0,
     presence_penalty=1.0,
-    model: GPTModel = gpt_3_5_turbo,
+    model: GPTModel = gpt_4o,
 ) -> str:
     openai.api_key = token
     client = openai.ChatCompletion.create(
@@ -56,13 +56,13 @@ def _generate_cards_until_finish(
     inputs: list[str],
     openai_token: str,
     cards_source: str,
-    model: GPTModel = gpt_3_5_turbo,
+    model: GPTModel = gpt_4o,
     template_input: dict = dict(),
 ) -> list[AnkiCard]:
-    '''
+    """
     The function slices inputs into chunks less than a predefined token limit.
     It then renders the template and converts the output to Anki cards.
-    '''
+    """
     intro = template.render(**template_input)
 
     tokens_intro = calculate_tokens_of_text(intro)
