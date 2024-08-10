@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ankigengpt"
-version = "0"
+version = "0.1.0"
 description = ""
 authors = ["rwxd <git@rwxd.de>"]
 readme = "README.md"
@@ -31,6 +31,3 @@ ankigengpt = "ankigengpt.__main__:main"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry-version-plugin]
-source = "git-tag"
