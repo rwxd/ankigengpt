@@ -1,22 +1,22 @@
-FROM python:3.11-slim
+FROM docker.io/python:3.11-alpine
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-	curl \
-	&& rm -rf /var/lib/apt/lists/*
+COPY --from=ghcr.io/astral-sh/uv:0.4.10 /uv /bin/uv
 
-# install poetry
-RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/etc/poetry python3 -
+# Create venv
+#RUN uv venv /opt/venv
+RUN uv venv /opt/venv
 
-# add poetry to path
-ENV PATH="${PATH}:/etc/poetry/bin"
+# Use the virtual environment automatically
+ENV VIRTUAL_ENV=/opt/venv
 
-# install dependencies
-COPY poetry.lock pyproject.toml ./
+# Place entry points in the environment at the front of the path
+ENV PATH="/opt/venv/bin:$PATH"
 
-RUN poetry config virtualenvs.create false \
-	&& poetry install --no-root
+# Install dependencies
+COPY poetry.lock pyproject.toml README.md ./
+RUN uv pip install --compile-bytecode -r pyproject.toml
 
 COPY . .
 
