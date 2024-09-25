@@ -15,7 +15,7 @@ ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Install dependencies
-COPY poetry.lock pyproject.toml README.md ./
+COPY pyproject.toml ./
 RUN uv pip install --compile-bytecode -r pyproject.toml
 
 COPY . .

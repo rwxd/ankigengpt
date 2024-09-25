@@ -2,27 +2,33 @@
 name = "ankigengpt"
 version = "0"
 description = ""
-authors = "rwxd <git@rwxd.de>"
 readme = "README.md"
 packages = [{ include = "ankigengpt" }]
 
 dependencies = [
-    "beautifulsoup4 == 4.12.2",
-    "ebooklib == 0.18",
-    "genanki == 0.13.0",
-    "jinja2 == 3.1.2",
-    "openai == 0.27.8",
-    "pdfplumber == 0.9.0",
-    "pydub == 0.25.1",
-    "python == None",
-    "pyyaml == 6.0",
-    "ratelimit == 2.2.1",
-    "rich == 13.4.2",
-    "tiktoken == 0.4.0",
-    "typer == 0.9.0",
+    "beautifulsoup4==4.12.2",
+    "ebooklib==0.18",
+    "genanki==0.13.0",
+    "jinja2==3.1.2",
+    "openai==0.27.8",
+    "pdfplumber==0.9.0",
+    "pydub==0.25.1",
+    "pyyaml==6.0.2",
+    "ratelimit==2.2.1",
+    "rich==13.4.2",
+    "tiktoken==0.4.0",
+    "typer==0.9.0",
 ]
 [project.scripts]
 ankigengpt = "ankigengpt.__main__:main"
 
 [project.optional-dependencies]
-dev = ["pre-commit == 3.3.3"]
+dev = ["pre-commit==3.3.3"]
+
+[tool.uv]
+dev-dependencies = [
+    "pre-commit>=3.3.3",
+]
+
+[tool.uv.workspace]
+members = ["test"]
