@@ -3,7 +3,6 @@ name = "ankigengpt"
 version = "0"
 description = ""
 readme = "README.md"
-packages = [{ include = "ankigengpt" }]
 
 dependencies = [
     "beautifulsoup4==4.12.2",
@@ -27,9 +26,7 @@ ankigengpt = "ankigengpt.__main__:main"
 dev = ["pre-commit==3.3.3"]
 
 [tool.uv]
-dev-dependencies = [
-    "pre-commit>=3.3.3",
-]
+dev-dependencies = ["pre-commit>=3.3.3"]
 
 [tool.uv.workspace]
 members = ["test"]

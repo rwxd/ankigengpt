@@ -11,21 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install poetry
-        run: pip install poetry
-
       - name: Debug
         run: pwd && ls -la
 
-      - name: Setup
-        run: poetry config virtualenvs.create false && poetry install --no-root
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - uses: yezz123/setup-uv@v4
+      - run: uv --version
 
       - name: Run pre-commit
-        run: pre-commit run --show-diff-on-failure --all-files
+        run: uv run pre-commit run --show-diff-on-failure --all-files
         env:
           SKIP: "no-commit-to-branch"
 
@@ -40,14 +36,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: pip install wheel poetry
-
-      - name: Setup poetry
-        run: poetry config virtualenvs.create false && poetry install --no-root && poetry self add poetry-version-plugin
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - uses: yezz123/setup-uv@v4
+      - run: uv --version
 
       - name: Build package
-        run: poetry build -f wheel
+        run: uv build --wheel .
 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@release/v1
