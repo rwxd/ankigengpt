@@ -51,6 +51,18 @@ After enabling export highlights on the Kobo device, you can retrieve the highli
 ankigengpt kobo-highlights --path ~/Downloads/BookHighlights.csv
 ```
 
+## Wallabag Article
+
+```bash
+export WALLABAG_URL="https://wallabag.com/"
+export WALLABAG_USER=""
+export WALLABAG_PASSWORD=""
+export WALLABAG_CLIENT_ID=""
+export WALLABAG_CLIENT_SECRET=""
+
+ankigengpt wallabag-article 1844
+```
+
 ## Plain text
 
 ou can also use AnkiGenGPT with plain text files such as markdown or txt. Here's how to use it:
