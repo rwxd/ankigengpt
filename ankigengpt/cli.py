@@ -25,19 +25,19 @@ console = Console()
 
 @app.command()
 def kindle_highlights(
-    openai_token: str = typer.Option(..., envvar='OPENAI_TOKEN'),
+    openai_token: str = typer.Option(..., envvar="OPENAI_TOKEN"),
     debug: bool = typer.Option(False),
-    path: Path = typer.Option(..., help='Path to APA highlight notebook'),
-    dest: Path = typer.Option(Path().cwd, help='Destination directory'),
+    path: Path = typer.Option(..., help="Path to APA highlight notebook"),
+    dest: Path = typer.Option(Path().cwd, help="Destination directory"),
     model: EnumGPTModel = typer.Option(
-        EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
+        EnumGPTModel.gpt_3_5_turbo.value, help="GPT model"
     ),
-    include_source: bool = typer.Option(False, help='Include source of highlight'),
+    include_source: bool = typer.Option(False, help="Include source of highlight"),
 ):
     init_logger(debug)
     resolved_model = get_gpt_model(model)
     highlights = extract_kindle_highlights(path)
-    logger.info(f'Found {len(highlights.highlights)} highlights for {highlights.title}')
+    logger.info(f"Found {len(highlights.highlights)} highlights for {highlights.title}")
     cards = _generate_cards_until_finish(
         template_kindle,
         highlights.highlights,
@@ -51,22 +51,22 @@ def kindle_highlights(
 
 @app.command()
 def plain(
-    openai_token: str = typer.Option(..., envvar='OPENAI_TOKEN'),
+    openai_token: str = typer.Option(..., envvar="OPENAI_TOKEN"),
     debug: bool = typer.Option(False),
-    path: Path = typer.Option(..., help='Path to text file'),
-    dest: Path = typer.Option(Path().cwd, help='Destination directory'),
+    path: Path = typer.Option(..., help="Path to text file"),
+    dest: Path = typer.Option(Path().cwd, help="Destination directory"),
     model: EnumGPTModel = typer.Option(
-        EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
+        EnumGPTModel.gpt_3_5_turbo.value, help="GPT model"
     ),
-    include_source: bool = typer.Option(False, help='Include source of highlight'),
+    include_source: bool = typer.Option(False, help="Include source of highlight"),
 ):
     init_logger(debug)
     resolved_model = get_gpt_model(model)
     with open(path) as f:
         raw = f.read()
         # remove markdown double new line
-        raw = raw.replace('\n\n', '\n')
-        content = raw.split('\n')
+        raw = raw.replace("\n\n", "\n")
+        content = raw.split("\n")
         cards = _generate_cards_until_finish(
             template_plain,
             content,
@@ -80,29 +80,29 @@ def plain(
 
 @app.command()
 def epub(
-    openai_token: str = typer.Option(..., envvar='OPENAI_TOKEN'),
+    openai_token: str = typer.Option(..., envvar="OPENAI_TOKEN"),
     debug: bool = typer.Option(False),
-    path: Path = typer.Option(..., help='Path to epub file'),
-    dest: Path = typer.Option(Path().cwd, help='Destination directory'),
+    path: Path = typer.Option(..., help="Path to epub file"),
+    dest: Path = typer.Option(Path().cwd, help="Destination directory"),
     model: EnumGPTModel = typer.Option(
-        EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
+        EnumGPTModel.gpt_3_5_turbo.value, help="GPT model"
     ),
-    include_source: bool = typer.Option(False, help='Include source of highlight'),
+    include_source: bool = typer.Option(False, help="Include source of highlight"),
 ):
     init_logger(debug)
     resolved_model = get_gpt_model(model)
     book = parse_ebook(path)
-    logger.info(f'{len(book.content)} items in book')
+    logger.info(f"{len(book.content)} items in book")
     logger.info(f'{len(" ".join(book.content))} chars')
-    tokens = calculate_tokens_of_text(' '.join(book.content))
-    logger.info(f'Book has {tokens} tokens')
+    tokens = calculate_tokens_of_text(" ".join(book.content))
+    logger.info(f"Book has {tokens} tokens")
 
     cards = _generate_cards_until_finish(
         template_epub,
         book.content,
         openai_token,
         cards_source=book.title,
-        template_input={'title': book.title},
+        template_input={"title": book.title},
         model=resolved_model,
     )
     ankiInput = DeckInput(book.title, cards)
@@ -111,19 +111,28 @@ def epub(
 
 @app.command()
 def kobo_highlights(
-    openai_token: str = typer.Option(..., envvar='OPENAI_TOKEN'),
+    openai_token: str = typer.Option(..., envvar="OPENAI_TOKEN"),
     debug: bool = typer.Option(False),
-    path: Path = typer.Option(..., help='Path to epub file'),
-    dest: Path = typer.Option(Path().cwd, help='Destination directory'),
+    path: Path = typer.Option(..., help="Path to epub file"),
+    dest: Path = typer.Option(Path().cwd, help="Destination directory"),
     model: EnumGPTModel = typer.Option(
-        EnumGPTModel.gpt_3_5_turbo.value, help='GPT model'
+        EnumGPTModel.gpt_3_5_turbo.value, help="GPT model"
     ),
-    include_source: bool = typer.Option(False, help='Include source of highlight'),
+    include_source: bool = typer.Option(False, help="Include source of highlight"),
 ):
     init_logger(debug)
     resolved_model = get_gpt_model(model)
     highlights = extract_kobo_highlights(path)
-    logger.info(f'Found {len(highlights.highlights)} highlights for {highlights.title}')
+    logger.info(f"Found {len(highlights.highlights)} highlights for {highlights.title}")
+    cards = _generate_cards_until_finish(
+        template_kindle,
+        highlights.highlights,
+        openai_token,
+        cards_source=highlights.title,
+        model=resolved_model,
+    )
+    input = DeckInput(highlights.title, cards)
+    generate_deck(input, dest, include_source)
     cards = _generate_cards_until_finish(
         template_kindle,
         highlights.highlights,
@@ -139,6 +148,6 @@ def kobo_highlights(
 def list_models():
     for model in [gpt_3_5_turbo, gpt_3_5_turbo_16k, gpt_4, gpt_4_32k]:
         console.print(
-            f'{model.name} - Max tokens: {model.max_tokens} - Price per token'
-            + f' {model.price_per_token}'
+            f"{model.name} - Max tokens: {model.max_tokens} - Price per token"
+            + f" {model.price_per_token}"
         )
