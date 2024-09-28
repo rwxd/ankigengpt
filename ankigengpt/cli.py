@@ -9,6 +9,7 @@ from ankigengpt.gpt import _generate_cards_until_finish, calculate_tokens_of_tex
 from ankigengpt.kindle import extract_kindle_highlights
 from ankigengpt.kobo import extract_kobo_highlights
 from ankigengpt.logging import init_logger, logger
+from ankigengpt.misc import get_text_from_html, sanitize_string
 from ankigengpt.models import (
     EnumGPTModel,
     get_gpt_model,
@@ -18,6 +19,7 @@ from ankigengpt.models import (
     gpt_4_32k,
 )
 from ankigengpt.templates import template_epub, template_kindle, template_plain
+from ankigengpt.wallabag import WallabagConnector
 
 app = typer.Typer()
 console = Console()
@@ -133,14 +135,50 @@ def kobo_highlights(
     )
     input = DeckInput(highlights.title, cards)
     generate_deck(input, dest, include_source)
+
+
+@app.command()
+def wallabag_article(
+    openai_token: str = typer.Option(..., envvar="OPENAI_TOKEN"),
+    debug: bool = typer.Option(False),
+    dest: Path = typer.Option(Path().cwd, help="Destination directory"),
+    model: EnumGPTModel = typer.Option(
+        EnumGPTModel.gpt_3_5_turbo.value, help="GPT model"
+    ),
+    article_id: int = typer.Argument(help="Id of the wallabag article"),
+    url=typer.Option(..., help="URL to wallabag instance", envvar="WALLABAG_URL"),
+    user=typer.Option(
+        ..., help="User on the wallabag instance", envvar="WALLABAG_USER"
+    ),
+    password=typer.Option(
+        ..., help="Password on the wallabag instance", envvar="WALLABAG_PASSWORD"
+    ),
+    client_id=typer.Option(
+        ..., help="Client id on the wallabag instance", envvar="WALLABAG_CLIENT_ID"
+    ),
+    client_secret=typer.Option(
+        ...,
+        help="Client secret on the wallabag instance",
+        envvar="WALLABAG_CLIENT_SECRET",
+    ),
+    include_source: bool = typer.Option(False, help="Include source of highlight"),
+):
+    init_logger(debug)
+    resolved_model = get_gpt_model(model)
+
+    client = WallabagConnector(url, user, password, client_id, client_secret)
+    entry = client.get_entry(article_id)
+    logger.info(f'Found "{entry.title}"')
+    content = get_text_from_html(entry.content)
+
     cards = _generate_cards_until_finish(
         template_kindle,
-        highlights.highlights,
+        content.split("\n"),
         openai_token,
-        cards_source=highlights.title,
+        cards_source=entry.title,
         model=resolved_model,
     )
-    input = DeckInput(highlights.title, cards)
+    input = DeckInput(sanitize_string(entry.title), cards)
     generate_deck(input, dest, include_source)
 
 
