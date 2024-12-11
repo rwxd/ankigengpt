@@ -2,7 +2,7 @@ FROM docker.io/python:3.13-alpine
 
 WORKDIR /app
 
-COPY --from=ghcr.io/astral-sh/uv:0.5.4 /uv /bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.5.7 /uv /bin/uv
 
 # Create venv
 #RUN uv venv /opt/venv
