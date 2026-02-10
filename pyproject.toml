@@ -5,25 +5,25 @@ description = ""
 readme = "README.md"
 
 dependencies = [
-    "beautifulsoup4==4.12.3",
-    "ebooklib==0.18",
+    "beautifulsoup4==4.14.3",
+    "ebooklib==0.20",
     "genanki==0.13.1",
-    "jinja2==3.1.4",
+    "jinja2==3.1.6",
     "openai==2.17.0",
-    "pdfplumber==0.11.4",
+    "pdfplumber==0.11.9",
     "pydub==0.25.1",
-    "pyyaml==6.0.2",
+    "pyyaml==6.0.3",
     "ratelimit==2.2.1",
     "requests>=2.32.3",
     "rich==14.3.2",
-    "tiktoken==0.8.0",
-    "typer==0.15.1",
+    "tiktoken==0.12.0",
+    "typer==0.21.1",
 ]
 [project.scripts]
 ankigengpt = "ankigengpt.__main__:main"
 
 [project.optional-dependencies]
-dev = ["pre-commit==4.0.1"]
+dev = ["pre-commit==4.5.1"]
 
 [tool.uv]
 dev-dependencies = ["pre-commit>=3.3.3"]
