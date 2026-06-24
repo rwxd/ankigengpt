@@ -6,6 +6,6 @@ on:
 
 jobs:
   semantic-release:
-    uses: rwxd/gh-templates/.github/workflows/common-semantic-release.yml@main
+    uses: rwxd/gh-templates/.github/workflows/common-semantic-release.yml@e8519c84940103508a1fafd216a73d327025b995 # main
     secrets:
       token: ${{ secrets.GH_TOKEN }}
